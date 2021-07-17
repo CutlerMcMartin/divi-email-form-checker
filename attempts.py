@@ -3,7 +3,7 @@ from requests_html import HTMLSession
 from urllib.parse import urljoin
 
 ## Turorial Being used: https://www.thepythoncode.com/article/extracting-and-submitting-web-page-forms-in-python
-url = "https://falcanna.com/contact-us/"
+url = "https://falcanna.com/"
 
 session = HTMLSession()
 
@@ -25,12 +25,6 @@ def get_form_details(form):
     # get the form method (POST, GET, DELETE, etc)
     # if not specified, GET is the default in HTML
     method = form.attrs.get("method", "get").lower()
-    # get all form buttons
-    buttons = []
-    for button_tag in form.find_all("button"):
-        # get type of input form control
-        button_class = button_tag.attrs.get("class")
-        buttons.append(button_class)
     # get all form inputs
     inputs = []
     for input_tag in form.find_all("input"):
@@ -39,13 +33,12 @@ def get_form_details(form):
         # get name attribute
         input_name = input_tag.attrs.get("name")
         # get the default value of that input tag
-        input_value = input_tag.attrs.get("value", "")
+        input_value =input_tag.attrs.get("value", "")
         # add everything to that list
         inputs.append({"type": input_type, "name": input_name, "value": input_value})
     # put everything to the resulting dictionary
     details["action"] = action
     details["method"] = method
-    details["buttons"] = buttons
     details["inputs"] = inputs
     return details
 
@@ -53,4 +46,25 @@ first_form = get_all_forms(url)[0]
 
 form_details = get_form_details(first_form)
 
-print(form_details)
+# the data body we want to submit
+data = {}
+for input_tag in form_details["inputs"]:
+    if input_tag["type"] == "hidden":
+        # if it's hidden, use the default value
+        data[input_tag["name"]] = input_tag["value"]
+    elif input_tag["type"] != "submit":
+        # all others except submit, prompt the user to set it
+        value = input(f"Enter the value of the field '{input_tag['name']}' (type: {input_tag['type']}): ")
+        data[input_tag["name"]] = value
+
+# join the url with the action (form request URL)
+url = urljoin(url, form_details["action"])
+
+if form_details["method"] == "post":
+    res = session.post(url, data=data)
+elif form_details["method"] == "get": 
+    res = session.get(url, params=data)
+
+first_form = get_all_forms(url)[0]
+
+form_details = get_form_details(first_form)
