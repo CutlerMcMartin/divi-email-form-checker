@@ -36,4 +36,4 @@ post_body = {
     "token":""
 }
 
-r = requests.post('https://marshalledmakers.com/delete-later/', data=post_body)
+r = requests.post(url, data=post_body)
