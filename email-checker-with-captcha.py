@@ -1,9 +1,6 @@
-# %%
 import requests
 from bs4 import BeautifulSoup
 from requests_html import HTMLSession
-
-# %%
 
 url = "https://marshalledmakers.com/delete-later/"
 
@@ -21,14 +18,11 @@ math_input = list_of_form_inputs[3]
 captcha_attributes = math_input.attrs
 captcha_numbers = [captcha_attributes['data-first_digit'], captcha_attributes['data-second_digit']]
 captcha_input = str(int(captcha_numbers[0]) + int(captcha_numbers[1]))
-print(captcha_input)
 
 form_id_input = list_of_form_inputs[2]
 form_id_input = form_id_input.find_all("input")[1]
 form_id = form_id_input.attrs['value']
-print(form_id)
 
-# %%
 
 post_body = {
     "et_pb_contact_name_0":"Cutler",
@@ -43,5 +37,3 @@ post_body = {
 }
 
 r = requests.post('https://marshalledmakers.com/delete-later/', data=post_body)
-
-# %%
